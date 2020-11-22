@@ -1,0 +1,58 @@
+language: go
+
+os:
+  - windows
+  - linux
+go:
+  - "1.13.11"
+  - "1.13.x"
+  - "1.14.x"
+  - "1.15.x"
+  - "1.x"
+
+notifications:
+  irc:
+    if: repo = namecoin/splicesign
+    channels:
+      - "irc.oftc.net#namecoin-dev"
+    on_success: never
+
+jobs:
+  allow_failures:
+    - stage: lint
+  include:
+    - os: linux
+      stage: lint-new
+      language: go
+      go: "1.15.x"
+      script:
+        # lint new changes
+        - go get -v -d -t ./...
+        - bash testdata/golangci-linter.bash --new-from-rev=HEAD~ # new changes
+    - os: linux
+      stage: lint-mandatory
+      language: go
+      go: "1.15.x"
+      script:
+        # lint with mandatory linters only.  Add more like this:
+        # --disable=foo,bar
+        - go get -v -d -t ./...
+        - bash testdata/golangci-linter.bash
+    - os: linux
+      stage: lint
+      language: go
+      go: "1.15.x"
+      script:
+        # lint stage
+        - go get -v -d -t ./...
+        - bash testdata/golangci-linter.bash # all, allowed to fail
+
+stages:
+  - lint-new
+  - lint-mandatory
+  - lint
+  - test
+
+# 'test' stage
+script:
+  - bash testdata/travis.bash
