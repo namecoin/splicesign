@@ -3,7 +3,7 @@
 set -euo pipefail
 shopt -s nullglob globstar
 
-golangci_linter_version=v1.32.2
+golangci_linter_version=latest
 
 # fetch golangci-lint program
 
